@@ -8,6 +8,12 @@ getJasmineRequireObj().Env = function(j$) {
    * @hideconstructor
    */
   function Env(options) {
+    // This is just a quick & dirty place to hang a spike.
+    // It's not the intended interface.
+    this.callerFilename = function() {
+      return new j$.StackTrace(new Error()).frames[1].file;
+    };
+
     options = options || {};
 
     var self = this;

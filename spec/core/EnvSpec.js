@@ -1,6 +1,6 @@
 // TODO: Fix these unit tests!
 describe('Env', function() {
-  var env;
+  let env;
   beforeEach(function() {
     env = new jasmineUnderTest.Env();
   });
@@ -27,7 +27,6 @@ describe('Env', function() {
 
   describe('#topSuite', function() {
     it('returns an object that describes the tree of suites and specs', function() {
-      var suite;
       spyOn(env, 'deprecated');
 
       env.it('a top level spec');
@@ -38,7 +37,7 @@ describe('Env', function() {
         });
       });
 
-      suite = env.topSuite();
+      const suite = env.topSuite();
       expect(suite).not.toBeInstanceOf(jasmineUnderTest.Suite);
       expect(suite.description).toEqual('Jasmine__TopLevel__Suite');
       expect(suite.getFullName()).toEqual('');
@@ -113,7 +112,7 @@ describe('Env', function() {
 
   it('ignores configuration properties that are present but undefined', function() {
     spyOn(env, 'deprecated');
-    var initialConfig = {
+    const initialConfig = {
       random: true,
       seed: '123',
       failSpecWithNoExpectations: true,
@@ -161,8 +160,8 @@ describe('Env', function() {
     it('returns a suite metadata object', function() {
       let innerSuite;
       let spec;
-      const suite = env.describe('outer suite', function() {
-        innerSuite = env.describe('inner suite', function() {
+      const suite = env[methodName]('outer suite', function() {
+        innerSuite = env[methodName]('inner suite', function() {
           spec = env.it('a spec');
         });
       });
@@ -193,6 +192,7 @@ describe('Env', function() {
 
     it('throws an error when given arguments', function() {
       expect(function() {
+        // eslint-disable-next-line no-unused-vars
         env.describe('done method', function(done) {});
       }).toThrowError('describe does not expect any arguments');
     });
@@ -315,7 +315,7 @@ describe('Env', function() {
     behavesLikeIt('xit');
 
     it('calls spec.exclude with "Temporarily disabled with xit"', function() {
-      var excludeSpy = jasmine.createSpy();
+      const excludeSpy = jasmine.createSpy();
       spyOn(env, 'it_').and.returnValue({
         exclude: excludeSpy
       });
@@ -324,8 +324,8 @@ describe('Env', function() {
     });
 
     it('calls spec.pend with "Temporarily disabled with xit"', function() {
-      var pendSpy = jasmine.createSpy();
-      var realExclude = jasmineUnderTest.Spec.prototype.exclude;
+      const pendSpy = jasmine.createSpy();
+      const realExclude = jasmineUnderTest.Spec.prototype.exclude;
 
       spyOn(env, 'it_').and.returnValue({
         exclude: realExclude,
@@ -464,7 +464,7 @@ describe('Env', function() {
 
   describe('when not constructed with suppressLoadErrors: true', function() {
     it('installs a global error handler on construction', function() {
-      var globalErrors = jasmine.createSpyObj('globalErrors', [
+      const globalErrors = jasmine.createSpyObj('globalErrors', [
         'install',
         'uninstall',
         'pushListener',
@@ -479,7 +479,7 @@ describe('Env', function() {
 
   describe('when constructed with suppressLoadErrors: true', function() {
     it('does not install a global error handler until execute is called', function() {
-      var globalErrors = jasmine.createSpyObj('globalErrors', [
+      const globalErrors = jasmine.createSpyObj('globalErrors', [
         'install',
         'uninstall',
         'pushListener',
@@ -498,9 +498,9 @@ describe('Env', function() {
     function customEqualityTester() {}
     function customObjectFormatter() {}
     function prettyPrinter() {}
-    var RealSpec = jasmineUnderTest.Spec,
-      specInstance,
-      expectationFactory;
+    const RealSpec = jasmineUnderTest.Spec;
+    let specInstance;
+    let expectationFactory;
     spyOn(jasmineUnderTest, 'MatchersUtil');
     spyOn(jasmineUnderTest, 'makePrettyPrinter').and.returnValue(prettyPrinter);
     spyOn(jasmineUnderTest, 'Spec').and.callFake(function(options) {
@@ -531,9 +531,9 @@ describe('Env', function() {
     function customEqualityTester() {}
     function customObjectFormatter() {}
     function prettyPrinter() {}
-    var RealSpec = jasmineUnderTest.Spec,
-      specInstance,
-      asyncExpectationFactory;
+    const RealSpec = jasmineUnderTest.Spec;
+    let specInstance;
+    let asyncExpectationFactory;
     spyOn(jasmineUnderTest, 'MatchersUtil');
     spyOn(jasmineUnderTest, 'makePrettyPrinter').and.returnValue(prettyPrinter);
     spyOn(jasmineUnderTest, 'Spec').and.callFake(function(options) {
@@ -561,7 +561,7 @@ describe('Env', function() {
   });
 
   it("does not expose the suite as 'this'", function() {
-    var suiteThis;
+    let suiteThis;
     spyOn(env, 'deprecated');
 
     env.describe('a suite', function() {
@@ -585,11 +585,10 @@ describe('Env', function() {
           return env.execute(); // 2
         })
         .then(function() {
-          var id;
           expect(
             jasmineUnderTest.Suite.prototype.reset
           ).toHaveBeenCalledOnceWith();
-          id = jasmineUnderTest.Suite.prototype.reset.calls.thisFor(0).id;
+          const id = jasmineUnderTest.Suite.prototype.reset.calls.thisFor(0).id;
           expect(id).toBeTruthy();
           expect(id).toEqual(env.topSuite().id);
         });

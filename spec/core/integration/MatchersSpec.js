@@ -1,5 +1,5 @@
 describe('Matchers (Integration)', function() {
-  var env;
+  let env;
 
   beforeEach(function() {
     env = new jasmineUnderTest.Env();
@@ -10,156 +10,158 @@ describe('Matchers (Integration)', function() {
   });
 
   function verifyPasses(expectations) {
-    it('passes', function(done) {
+    it('passes', async function() {
       env.it('a spec', function() {
         expectations(env);
       });
 
-      var specExpectations = function(result) {
-        expect(result.status).toEqual('passed');
-        expect(result.passedExpectations.length)
-          .withContext('Number of passed expectations')
-          .toEqual(1);
-        expect(result.failedExpectations.length)
-          .withContext('Number of failed expectations')
-          .toEqual(0);
-        expect(
-          result.failedExpectations[0] && result.failedExpectations[0].message
-        )
-          .withContext('Failure message')
-          .toBeUndefined();
-      };
+      const reporter = jasmine.createSpyObj('reporter', ['specDone']);
+      env.addReporter(reporter);
+      await env.execute();
 
-      env.addReporter({ specDone: specExpectations });
-      env.execute(null, done);
+      expect(reporter.specDone).toHaveBeenCalledTimes(1);
+      const result = reporter.specDone.calls.argsFor(0)[0];
+      expect(result.status).toEqual('passed');
+      expect(result.passedExpectations.length)
+        .withContext('Number of passed expectations')
+        .toEqual(1);
+      expect(result.failedExpectations.length)
+        .withContext('Number of failed expectations')
+        .toEqual(0);
+      expect(
+        result.failedExpectations[0] && result.failedExpectations[0].message
+      )
+        .withContext('Failure message')
+        .toBeUndefined();
     });
   }
 
   function verifyFails(expectations) {
-    it('fails', function(done) {
+    it('fails', async function() {
       env.it('a spec', function() {
         expectations(env);
       });
 
-      var specExpectations = function(result) {
-        expect(result.status).toEqual('failed');
-        expect(result.failedExpectations.length)
-          .withContext('Number of failed expectations')
-          .toEqual(1);
-        expect(result.failedExpectations[0].message)
-          .withContext(
-            'Failed with a thrown error rather than a matcher failure'
-          )
-          .not.toMatch(/^Error: /);
-        expect(result.failedExpectations[0].message)
-          .withContext(
-            'Failed with a thrown type error rather than a matcher failure'
-          )
-          .not.toMatch(/^TypeError: /);
-        expect(result.failedExpectations[0].matcherName)
-          .withContext('Matcher name')
-          .not.toEqual('');
-      };
+      const reporter = jasmine.createSpyObj('reporter', ['specDone']);
+      env.addReporter(reporter);
+      await env.execute();
 
-      env.addReporter({ specDone: specExpectations });
-      env.execute(null, done);
+      expect(reporter.specDone).toHaveBeenCalledTimes(1);
+      const result = reporter.specDone.calls.argsFor(0)[0];
+      expect(result.status).toEqual('failed');
+      expect(result.failedExpectations.length)
+        .withContext('Number of failed expectations')
+        .toEqual(1);
+      expect(result.failedExpectations[0].message)
+        .withContext('Failed with a thrown error rather than a matcher failure')
+        .not.toMatch(/^Error: /);
+      expect(result.failedExpectations[0].message)
+        .withContext(
+          'Failed with a thrown type error rather than a matcher failure'
+        )
+        .not.toMatch(/^TypeError: /);
+      expect(result.failedExpectations[0].matcherName)
+        .withContext('Matcher name')
+        .not.toEqual('');
     });
   }
 
   function verifyFailsWithCustomObjectFormatters(config) {
-    it('uses custom object formatters', function(done) {
+    it('uses custom object formatters', async function() {
       env.it('a spec', function() {
         env.addCustomObjectFormatter(config.formatter);
         config.expectations(env);
       });
 
-      var specExpectations = function(result) {
-        expect(result.status).toEqual('failed');
-        expect(result.failedExpectations.length)
-          .withContext('Number of failed expectations')
-          .toEqual(1);
-        expect(result.failedExpectations[0].message).toEqual(
-          config.expectedMessage
-        );
-      };
+      const reporter = jasmine.createSpyObj('reporter', ['specDone']);
+      env.addReporter(reporter);
+      await env.execute();
 
-      env.addReporter({ specDone: specExpectations });
-      env.execute(null, done);
+      expect(reporter.specDone).toHaveBeenCalledTimes(1);
+      const result = reporter.specDone.calls.argsFor(0)[0];
+      expect(result.status).toEqual('failed');
+      expect(result.failedExpectations.length)
+        .withContext('Number of failed expectations')
+        .toEqual(1);
+      expect(result.failedExpectations[0].message).toEqual(
+        config.expectedMessage
+      );
     });
   }
 
   function verifyPassesAsync(expectations) {
-    it('passes', function(done) {
+    it('passes', async function() {
       env.it('a spec', function() {
         return expectations(env);
       });
 
-      var specExpectations = function(result) {
-        expect(result.status).toEqual('passed');
-        expect(result.passedExpectations.length)
-          .withContext('Number of passed expectations')
-          .toEqual(1);
-        expect(result.failedExpectations.length)
-          .withContext('Number of failed expectations')
-          .toEqual(0);
-        expect(
-          result.failedExpectations[0] && result.failedExpectations[0].message
-        )
-          .withContext('Failure message')
-          .toBeUndefined();
-      };
+      const reporter = jasmine.createSpyObj('reporter', ['specDone']);
+      env.addReporter(reporter);
+      await env.execute();
 
-      env.addReporter({ specDone: specExpectations });
-      env.execute(null, done);
+      expect(reporter.specDone).toHaveBeenCalledTimes(1);
+      const result = reporter.specDone.calls.argsFor(0)[0];
+      expect(result.status).toEqual('passed');
+      expect(result.passedExpectations.length)
+        .withContext('Number of passed expectations')
+        .toEqual(1);
+      expect(result.failedExpectations.length)
+        .withContext('Number of failed expectations')
+        .toEqual(0);
+      expect(
+        result.failedExpectations[0] && result.failedExpectations[0].message
+      )
+        .withContext('Failure message')
+        .toBeUndefined();
     });
   }
 
   function verifyFailsAsync(expectations) {
-    it('fails', function(done) {
+    it('fails', async function() {
       env.it('a spec', function() {
         return expectations(env);
       });
 
-      var specExpectations = function(result) {
-        expect(result.status).toEqual('failed');
-        expect(result.failedExpectations.length)
-          .withContext('Number of failed expectations')
-          .toEqual(1);
-        expect(result.failedExpectations[0].message)
-          .withContext(
-            'Failed with a thrown error rather than a matcher failure'
-          )
-          .not.toMatch(/^Error: /);
-        expect(result.failedExpectations[0].matcherName)
-          .withContext('Matcher name')
-          .not.toEqual('');
-      };
+      const reporter = jasmine.createSpyObj('reporter', ['specDone']);
+      env.addReporter(reporter);
+      await env.execute();
 
-      env.addReporter({ specDone: specExpectations });
-      env.execute(null, done);
+      expect(reporter.specDone).toHaveBeenCalledTimes(1);
+      const result = reporter.specDone.calls.argsFor(0)[0];
+      expect(result.status).toEqual('failed');
+      expect(result.failedExpectations.length)
+        .withContext('Number of failed expectations')
+        .toEqual(1);
+      expect(result.failedExpectations[0].message)
+        .withContext('Failed with a thrown error rather than a matcher failure')
+        .not.toMatch(/^Error: /);
+      expect(result.failedExpectations[0].matcherName)
+        .withContext('Matcher name')
+        .not.toEqual('');
     });
   }
 
   function verifyFailsWithCustomObjectFormattersAsync(config) {
-    it('uses custom object formatters', function(done) {
-      var env = new jasmineUnderTest.Env();
+    it('uses custom object formatters', async function() {
+      const env = new jasmineUnderTest.Env();
       env.it('a spec', function() {
         env.addCustomObjectFormatter(config.formatter);
         return config.expectations(env);
       });
 
-      var specExpectations = function(result) {
-        expect(result.status).toEqual('failed');
-        expect(result.failedExpectations.length)
-          .withContext('Number of failed expectations')
-          .toEqual(1);
-        expect(result.failedExpectations[0].message).toEqual(
-          config.expectedMessage
-        );
-      };
+      const reporter = jasmine.createSpyObj('reporter', ['specDone']);
+      env.addReporter(reporter);
+      await env.execute();
 
-      env.addReporter({ specDone: specExpectations });
-      env.execute(null, done);
+      expect(reporter.specDone).toHaveBeenCalledTimes(1);
+      const result = reporter.specDone.calls.argsFor(0)[0];
+      expect(result.status).toEqual('failed');
+      expect(result.failedExpectations.length)
+        .withContext('Number of failed expectations')
+        .toEqual(1);
+      expect(result.failedExpectations[0].message).toEqual(
+        config.expectedMessage
+      );
     });
   }
 
@@ -519,20 +521,20 @@ describe('Matchers (Integration)', function() {
 
   describe('toHaveBeenCalled', function() {
     verifyPasses(function(env) {
-      var spy = env.createSpy('spy');
+      const spy = env.createSpy('spy');
       spy();
       env.expect(spy).toHaveBeenCalled();
     });
 
     verifyFails(function(env) {
-      var spy = env.createSpy('spy');
+      const spy = env.createSpy('spy');
       env.expect(spy).toHaveBeenCalled();
     });
   });
 
   describe('toHaveBeenCalledBefore', function() {
     verifyPasses(function(env) {
-      var a = env.createSpy('a'),
+      const a = env.createSpy('a'),
         b = env.createSpy('b');
       a();
       b();
@@ -540,7 +542,7 @@ describe('Matchers (Integration)', function() {
     });
 
     verifyFails(function(env) {
-      var a = env.createSpy('a'),
+      const a = env.createSpy('a'),
         b = env.createSpy('b');
       b();
       a();
@@ -550,20 +552,20 @@ describe('Matchers (Integration)', function() {
 
   describe('toHaveBeenCalledTimes', function() {
     verifyPasses(function(env) {
-      var spy = env.createSpy('spy');
+      const spy = env.createSpy('spy');
       spy();
       env.expect(spy).toHaveBeenCalledTimes(1);
     });
 
     verifyFails(function(env) {
-      var spy = env.createSpy('spy');
+      const spy = env.createSpy('spy');
       env.expect(spy).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('toHaveBeenCalledWith', function() {
     verifyPasses(function(env) {
-      var spy = env.createSpy();
+      const spy = env.createSpy();
       spy('5');
       env.addCustomEqualityTester(function(a, b) {
         return a.toString() === b.toString();
@@ -572,7 +574,7 @@ describe('Matchers (Integration)', function() {
     });
 
     verifyFails(function(env) {
-      var spy = env.createSpy();
+      const spy = env.createSpy();
       env.expect(spy).toHaveBeenCalledWith('foo');
     });
 
@@ -581,7 +583,7 @@ describe('Matchers (Integration)', function() {
         return '|' + val + '|';
       },
       expectations: function(env) {
-        var spy = env.createSpy('foo');
+        const spy = env.createSpy('foo');
         env.expect(spy).toHaveBeenCalledWith('x');
       },
       expectedMessage:
@@ -593,7 +595,7 @@ describe('Matchers (Integration)', function() {
 
   describe('toHaveBeenCalledOnceWith', function() {
     verifyPasses(function(env) {
-      var spy = env.createSpy();
+      const spy = env.createSpy();
       spy('5', 3);
       env.addCustomEqualityTester(function(a, b) {
         return a.toString() === b.toString();
@@ -602,7 +604,7 @@ describe('Matchers (Integration)', function() {
     });
 
     verifyFails(function(env) {
-      var spy = env.createSpy();
+      const spy = env.createSpy();
       env.expect(spy).toHaveBeenCalledOnceWith(5, 3);
     });
   });
@@ -613,14 +615,14 @@ describe('Matchers (Integration)', function() {
     });
 
     verifyPasses(function(env) {
-      var domHelpers = jasmine.getEnv().domHelpers();
-      var el = domHelpers.createElementWithClassName('foo');
+      const domHelpers = jasmine.getEnv().domHelpers();
+      const el = domHelpers.createElementWithClassName('foo');
       env.expect(el).toHaveClass('foo');
     });
 
     verifyFails(function(env) {
-      var domHelpers = jasmine.getEnv().domHelpers();
-      var el = domHelpers.createElementWithClassName('foo');
+      const domHelpers = jasmine.getEnv().domHelpers();
+      const el = domHelpers.createElementWithClassName('foo');
       env.expect(el).toHaveClass('bar');
     });
   });
@@ -678,7 +680,6 @@ describe('Matchers (Integration)', function() {
         return '|' + val + '|';
       },
       expectations: function(env) {
-        var spy = env.createSpy('foo');
         env
           .expect(function() {
             throw 'x';
@@ -707,7 +708,6 @@ describe('Matchers (Integration)', function() {
         return '|' + val + '|';
       },
       expectations: function(env) {
-        var spy = env.createSpy('foo');
         env
           .expect(function() {
             throw 'x';
@@ -740,7 +740,6 @@ describe('Matchers (Integration)', function() {
         return '|' + val + '|';
       },
       expectations: function(env) {
-        var spy = env.createSpy('foo');
         env
           .expect(function() {
             throw new Error('nope');
@@ -756,76 +755,79 @@ describe('Matchers (Integration)', function() {
   });
 
   describe('When an async matcher is used with .already()', function() {
-    it('propagates the matcher result when the promise is resolved', function(done) {
+    it('propagates the matcher result when the promise is resolved', async function() {
       env.it('a spec', function() {
         return env.expectAsync(Promise.resolve()).already.toBeRejected();
       });
 
-      var specExpectations = function(result) {
-        expect(result.status).toEqual('failed');
-        expect(result.failedExpectations.length)
-          .withContext('Number of failed expectations')
-          .toEqual(1);
-        expect(result.failedExpectations[0].message).toEqual(
-          'Expected [object Promise] to be rejected.'
-        );
-        expect(result.failedExpectations[0].matcherName)
-          .withContext('Matcher name')
-          .not.toEqual('');
-      };
+      const reporter = jasmine.createSpyObj('reporter', ['specDone']);
+      env.addReporter(reporter);
+      await env.execute();
 
-      env.addReporter({ specDone: specExpectations });
-      env.execute(null, done);
+      expect(reporter.specDone).toHaveBeenCalledTimes(1);
+      const result = reporter.specDone.calls.argsFor(0)[0];
+      expect(result.status).toEqual('failed');
+      expect(result.failedExpectations.length)
+        .withContext('Number of failed expectations')
+        .toEqual(1);
+      expect(result.failedExpectations[0].message).toEqual(
+        'Expected [object Promise] to be rejected.'
+      );
+      expect(result.failedExpectations[0].matcherName)
+        .withContext('Matcher name')
+        .not.toEqual('');
     });
 
-    it('propagates the matcher result when the promise is rejected', function(done) {
+    it('propagates the matcher result when the promise is rejected', async function() {
       env.it('a spec', function() {
         return env
           .expectAsync(Promise.reject(new Error('nope')))
           .already.toBeResolved();
       });
 
-      var specExpectations = function(result) {
-        expect(result.status).toEqual('failed');
-        expect(result.failedExpectations.length)
-          .withContext('Number of failed expectations')
-          .toEqual(1);
-        expect(result.failedExpectations[0].message).toEqual(
-          'Expected a promise to be resolved but it was ' +
-            'rejected with Error: nope.'
-        );
-        expect(result.failedExpectations[0].matcherName)
-          .withContext('Matcher name')
-          .not.toEqual('');
-      };
+      const reporter = jasmine.createSpyObj('reporter', ['specDone']);
+      env.addReporter(reporter);
+      await env.execute();
 
-      env.addReporter({ specDone: specExpectations });
-      env.execute(null, done);
+      expect(reporter.specDone).toHaveBeenCalledTimes(1);
+      const result = reporter.specDone.calls.argsFor(0)[0];
+      expect(result.status).toEqual('failed');
+      expect(result.failedExpectations.length)
+        .withContext('Number of failed expectations')
+        .toEqual(1);
+      expect(result.failedExpectations[0].message).toEqual(
+        'Expected a promise to be resolved but it was ' +
+          'rejected with Error: nope.'
+      );
+      expect(result.failedExpectations[0].matcherName)
+        .withContext('Matcher name')
+        .not.toEqual('');
     });
 
-    it('fails when the promise is pending', function(done) {
-      var promise = new Promise(function() {});
+    it('fails when the promise is pending', async function() {
+      const promise = new Promise(function() {});
 
       env.it('a spec', function() {
         return env.expectAsync(promise).already.toBeResolved();
       });
 
-      var specExpectations = function(result) {
-        expect(result.status).toEqual('failed');
-        expect(result.failedExpectations.length)
-          .withContext('Number of failed expectations')
-          .toEqual(1);
-        expect(result.failedExpectations[0].message).toEqual(
-          'Expected a promise to be settled ' +
-            '(via expectAsync(...).already) but it was pending.'
-        );
-        expect(result.failedExpectations[0].matcherName)
-          .withContext('Matcher name')
-          .not.toEqual('');
-      };
+      const reporter = jasmine.createSpyObj('reporter', ['specDone']);
+      env.addReporter(reporter);
+      await env.execute();
 
-      env.addReporter({ specDone: specExpectations });
-      env.execute(null, done);
+      expect(reporter.specDone).toHaveBeenCalledTimes(1);
+      const result = reporter.specDone.calls.argsFor(0)[0];
+      expect(result.status).toEqual('failed');
+      expect(result.failedExpectations.length)
+        .withContext('Number of failed expectations')
+        .toEqual(1);
+      expect(result.failedExpectations[0].message).toEqual(
+        'Expected a promise to be settled ' +
+          '(via expectAsync(...).already) but it was pending.'
+      );
+      expect(result.failedExpectations[0].matcherName)
+        .withContext('Matcher name')
+        .not.toEqual('');
     });
   });
 });

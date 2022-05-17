@@ -1,46 +1,40 @@
 getJasmineRequireObj().ObjectPath = function(j$) {
-  function ObjectPath(components) {
-    this.components = components || [];
+  class ObjectPath {
+    constructor(components) {
+      this.components = components || [];
+    }
+
+    toString() {
+      if (this.components.length) {
+        return '$' + this.components.map(formatPropertyAccess).join('');
+      } else {
+        return '';
+      }
+    }
+
+    add(component) {
+      return new ObjectPath(this.components.concat([component]));
+    }
+
+    shift() {
+      return new ObjectPath(this.components.slice(1));
+    }
+
+    depth() {
+      return this.components.length;
+    }
   }
 
-  ObjectPath.prototype.toString = function() {
-    if (this.components.length) {
-      return '$' + map(this.components, formatPropertyAccess).join('');
-    } else {
-      return '';
-    }
-  };
-
-  ObjectPath.prototype.add = function(component) {
-    return new ObjectPath(this.components.concat([component]));
-  };
-
-  ObjectPath.prototype.shift = function() {
-    return new ObjectPath(this.components.slice(1));
-  };
-
-  ObjectPath.prototype.depth = function() {
-    return this.components.length;
-  };
-
   function formatPropertyAccess(prop) {
-    if (typeof prop === 'number') {
-      return '[' + prop + ']';
+    if (typeof prop === 'number' || typeof prop === 'symbol') {
+      return '[' + prop.toString() + ']';
     }
 
     if (isValidIdentifier(prop)) {
       return '.' + prop;
     }
 
-    return "['" + prop + "']";
-  }
-
-  function map(array, fn) {
-    var results = [];
-    for (var i = 0; i < array.length; i++) {
-      results.push(fn(array[i]));
-    }
-    return results;
+    return `['${prop}']`;
   }
 
   function isValidIdentifier(string) {

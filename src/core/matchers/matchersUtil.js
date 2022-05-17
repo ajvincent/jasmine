@@ -483,12 +483,12 @@ getJasmineRequireObj().MatchersUtil = function(j$) {
     }
 
     // Deep compare objects.
-    var aKeys = keys(a, className == '[object Array]'),
+    var aKeys = MatchersUtil.keys(a, className == '[object Array]'),
       key;
     size = aKeys.length;
 
     // Ensure that both objects contain the same number of properties before comparing deep equality.
-    if (keys(b, className == '[object Array]').length !== size) {
+    if (MatchersUtil.keys(b, className == '[object Array]').length !== size) {
       diffBuilder.recordMismatch(
         objectKeysAreDifferentFormatter.bind(null, this.pp)
       );
@@ -524,7 +524,7 @@ getJasmineRequireObj().MatchersUtil = function(j$) {
     return result;
   };
 
-  function keys(obj, isArray) {
+  MatchersUtil.keys = function(obj, isArray) {
     var allKeys = (function(o) {
       var keys = [];
       for (var key in o) {
@@ -532,8 +532,15 @@ getJasmineRequireObj().MatchersUtil = function(j$) {
           keys.push(key);
         }
       }
-      // eslint-disable-next-line compat/compat
-      return keys.concat(Object.getOwnPropertySymbols(o));
+
+      var symbols = Object.getOwnPropertySymbols(o);
+      for (var i = 0; i < symbols.length; i++) {
+        if (o.propertyIsEnumerable(symbols[i])) {
+          keys.push(symbols[i]);
+        }
+      }
+
+      return keys;
     })(obj);
 
     if (!isArray) {
@@ -546,21 +553,29 @@ getJasmineRequireObj().MatchersUtil = function(j$) {
 
     var extraKeys = [];
     for (var i = 0; i < allKeys.length; i++) {
-      if (!/^[0-9]+$/.test(allKeys[i])) {
+      if (typeof allKeys[i] === 'symbol' || !/^[0-9]+$/.test(allKeys[i])) {
         extraKeys.push(allKeys[i]);
       }
     }
 
     return extraKeys;
-  }
+  };
 
   function isFunction(obj) {
     return typeof obj === 'function';
   }
 
+  // Returns an array of [k, v] pairs for eacch property that's in objA
+  // and not in objB.
+  function extraKeysAndValues(objA, objB) {
+    return MatchersUtil.keys(objA)
+      .filter(key => !j$.util.has(objB, key))
+      .map(key => [key, objA[key]]);
+  }
+
   function objectKeysAreDifferentFormatter(pp, actual, expected, path) {
-    var missingProperties = j$.util.objectDifference(expected, actual),
-      extraProperties = j$.util.objectDifference(actual, expected),
+    var missingProperties = extraKeysAndValues(expected, actual),
+      extraProperties = extraKeysAndValues(actual, expected),
       missingPropertiesMessage = formatKeyValuePairs(pp, missingProperties),
       extraPropertiesMessage = formatKeyValuePairs(pp, extraProperties),
       messages = [];
@@ -610,11 +625,13 @@ getJasmineRequireObj().MatchersUtil = function(j$) {
     );
   }
 
-  function formatKeyValuePairs(pp, obj) {
-    var formatted = '';
-    for (var key in obj) {
-      formatted += '\n    ' + key + ': ' + pp(obj[key]);
+  function formatKeyValuePairs(pp, keyValuePairs) {
+    let formatted = '';
+
+    for (const [key, value] of keyValuePairs) {
+      formatted += '\n    ' + key.toString() + ': ' + pp(value);
     }
+
     return formatted;
   }
 
